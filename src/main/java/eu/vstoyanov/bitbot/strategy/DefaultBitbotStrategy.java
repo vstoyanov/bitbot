@@ -2,6 +2,7 @@ package eu.vstoyanov.bitbot.strategy;
 
 import eu.vstoyanov.bitbot.model.Order;
 import eu.vstoyanov.bitbot.model.OrderType;
+import eu.vstoyanov.bitbot.service.AccountService;
 import eu.vstoyanov.bitbot.strategy.marketdata.MarketData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.Instant;
 
 /**
@@ -30,10 +33,13 @@ public class DefaultBitbotStrategy implements TradingStrategy {
         this.marketData = marketData;
     }
 
-    @Override
-    public Order tick(Instant timestamp, double price) {
+    @Autowired
+    public AccountService accountService;
 
-        marketData.record(timestamp, price);
+    @Override
+    public Order tick(Instant timestamp, BigDecimal price) {
+
+        marketData.record(timestamp, price.doubleValue());
 
         if (marketData.didUpdate()) {
 
@@ -42,9 +48,16 @@ public class DefaultBitbotStrategy implements TradingStrategy {
             double lastVelocity = priceVelocities[22];
 
             if ( 0.985 < lastVelocity && lastVelocity < 0.991) {
-                return new Order(OrderType.BUY, new BigDecimal(Double.MAX_VALUE));
+                return new Order(
+                        OrderType.BUY,
+                        accountService.getAccount().getFiatBalance()
+                                .divide(price, MathContext.DECIMAL128)
+                                .setScale(10, RoundingMode.HALF_EVEN));
+
             } else if ( 1.005 < lastVelocity && lastVelocity < 1.010)
-                return new Order(OrderType.SELL, new BigDecimal(Double.MAX_VALUE));
+                return new Order(
+                        OrderType.SELL,
+                        accountService.getAccount().getCryptoBalance());
         }
 
         return new Order(OrderType.BUY, new BigDecimal(0));
@@ -54,7 +67,7 @@ public class DefaultBitbotStrategy implements TradingStrategy {
         double[] hourlyMeans = marketData.getHourlyMeans();
 
         for (int i = 0; i < priceVelocities.length; i++) {
-            priceVelocities[i] = hourlyMeans[i + 1]/hourlyMeans[i];
+            priceVelocities[i] = hourlyMeans[i + 1] / hourlyMeans[i];
         }
     }
 

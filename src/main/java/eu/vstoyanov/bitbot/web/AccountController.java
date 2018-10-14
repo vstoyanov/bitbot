@@ -18,13 +18,13 @@ public class AccountController {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
-    @RequestMapping(name = "/balance", method = RequestMethod.GET)
+    @RequestMapping(path = "balance", method = RequestMethod.GET)
     public Account getBalance() {
         return accountService.getAccount();
     }
 
-    @RequestMapping(name = "/orders", method = RequestMethod.POST)
-    public List<OrderExecution> setState() {
+    @RequestMapping(path = "orders", method = RequestMethod.GET)
+    public List<OrderExecution> orders() {
         return accountService.getOrderExecutions();
     }
 

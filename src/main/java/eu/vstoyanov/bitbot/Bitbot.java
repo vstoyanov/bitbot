@@ -2,7 +2,7 @@ package eu.vstoyanov.bitbot;
 
 import com.coinbase.api.Coinbase;
 import com.coinbase.api.CoinbaseBuilder;
-import eu.vstoyanov.bitbot.configuration.Configuration;
+import eu.vstoyanov.bitbot.configuration.BitbotConfiguration;
 import eu.vstoyanov.bitbot.exchange.CoinbaseAdapter;
 import eu.vstoyanov.bitbot.exchange.Exchange;
 import eu.vstoyanov.bitbot.web.WebConfig;
@@ -15,6 +15,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 
 import java.time.Clock;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @ComponentScan(
         excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "eu.vstoyanov.bitbot.web.*"))
@@ -28,7 +30,7 @@ public class Bitbot {
     }
 
     @Bean
-    public Exchange coinbase(Configuration configuration, Clock clock) {
+    public Exchange coinbase(BitbotConfiguration configuration, Clock clock) {
         Coinbase coinbase = new CoinbaseBuilder()
                 .withApiKey(System.getenv(configuration.getApiKey()), configuration.getApiSecret())
                 .build();
@@ -38,5 +40,10 @@ public class Bitbot {
     @Bean
     public Clock clock() {
         return Clock.systemDefaultZone();
+    }
+
+    @Bean
+    public ScheduledExecutorService executorService() {
+        return Executors.newScheduledThreadPool(1);
     }
 }

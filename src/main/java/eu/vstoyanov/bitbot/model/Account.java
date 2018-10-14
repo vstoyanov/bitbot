@@ -6,6 +6,10 @@ import java.math.BigDecimal;
 
 public class Account {
 
+    public Account() {
+
+    }
+
     public Account(BigDecimal cryptoBalance, BigDecimal fiatBalance) {
         this.cryptoBalance = cryptoBalance;
         this.fiatBalance = fiatBalance;

@@ -21,7 +21,7 @@ public class StateController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public String setState(@RequestParam(value="state") boolean state) {
+    public String setState(@RequestParam("state") boolean state) {
 
         if (state == tradingEngine.isRunning()) {
             return "No action required. Already in that state";

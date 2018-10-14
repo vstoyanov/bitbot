@@ -1,6 +1,6 @@
 package eu.vstoyanov.bitbot.core;
 
-import eu.vstoyanov.bitbot.configuration.Configuration;
+import eu.vstoyanov.bitbot.configuration.BitbotConfiguration;
 import eu.vstoyanov.bitbot.exchange.ExchangeException;
 import eu.vstoyanov.bitbot.service.TradingService;
 import org.slf4j.Logger;
@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -25,12 +24,12 @@ public class TradingEngine {
     private static final Logger logger = LoggerFactory.getLogger(TradingEngine.class);
 
     @Autowired
-    public TradingEngine(TradingService tradingService, Configuration configuration) {
+    public TradingEngine(TradingService tradingService, ScheduledExecutorService executor, BitbotConfiguration configuration) {
 
         this.tradingService = tradingService;
         this.configuration = configuration;
+        this.executor = executor;
 
-        executor = Executors.newScheduledThreadPool(1);
         tick = this::tick;
     }
 
@@ -71,8 +70,7 @@ public class TradingEngine {
     }
 
     private final TradingService tradingService;
-    private final Configuration configuration;
-
+    private final BitbotConfiguration configuration;
     private final ScheduledExecutorService executor;
     private final Runnable tick;
 

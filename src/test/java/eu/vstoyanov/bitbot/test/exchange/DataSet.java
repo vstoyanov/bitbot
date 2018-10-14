@@ -1,6 +1,7 @@
 package eu.vstoyanov.bitbot.test.exchange;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,27 +20,26 @@ import java.util.stream.Stream;
 public class DataSet {
 
     public static final DataSet JPY = new DataSet("bitflyerJPY_1-min_data_2017-07-04_to_2018-06-27.csv");
-    public static final DataSet USD = new DataSet("bitstampUSD_1-min_data_2012-01-01_to_2018-06-27.csv");
 
     private final Logger logger = Logger.getLogger(DataSet.class.getName());
     private static final String CSV_SEPARATOR = ",";
 
     public static class Entry {
 
-        Entry(Instant instant, double weightedPrice) {
+        Entry(Instant instant, BigDecimal weightedPrice) {
             this.instant = instant;
             this.weightedPrice = weightedPrice;
         }
 
         private Instant instant;
 
-        private double weightedPrice;
+        private BigDecimal weightedPrice;
 
         public Instant getInstant() {
             return instant;
         }
 
-        public double getWeightedPrice() {
+        public BigDecimal getWeightedPrice() {
             return weightedPrice;
         }
     }
@@ -57,7 +57,7 @@ public class DataSet {
                         String[] elements = line.split(CSV_SEPARATOR);
                         entries.add(new Entry(
                                 Instant.ofEpochSecond(Long.parseLong(elements[0])),
-                                Double.parseDouble(elements[7])));
+                                new BigDecimal(elements[7])));
             });
             logger.fine(String.format("Finished reading dataset: %s", path.toString()));
 
@@ -68,17 +68,21 @@ public class DataSet {
         iterator = entries.listIterator();
     }
 
-    Entry get(int index) {
-        return this.entries.get(index);
-    }
-
-    Entry getNext() {
+    public Entry getNext() {
         if (iterator.hasNext()) {
             return iterator.next();
         } else {
             System.exit(0);
             return null;
         }
+    }
+
+    public Entry getPrevious() {
+        return iterator.previous();
+    }
+
+    public boolean hasNext() {
+        return iterator.hasNext();
     }
 
     private final List<Entry> entries = new LinkedList<>();

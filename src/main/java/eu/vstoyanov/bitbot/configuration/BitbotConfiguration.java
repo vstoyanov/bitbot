@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
-@PropertySource(Configuration.CONFIGURATION_FILENAME)
-public class Configuration {
+@PropertySource(BitbotConfiguration.CONFIGURATION_FILENAME)
+public class BitbotConfiguration {
     static final String CONFIGURATION_FILENAME = "classpath:/configuration.properties";
 
     @Value("${trading.fiatCurrency}")
@@ -20,6 +22,12 @@ public class Configuration {
 
     @Value("${exchange.apiSecret}")
     private String apiKey;
+
+    @Value("${account.balance.starting.crypto}")
+    private BigDecimal startingCryptoBalance;
+
+    @Value("${account.balance.starting.fiat}")
+    private BigDecimal startingFiatBalance;
 
     public String getFiatCurrency() {
         return fiatCurrency;
@@ -35,5 +43,13 @@ public class Configuration {
 
     public String getApiKey() {
         return apiKey;
+    }
+
+    public BigDecimal getStartingCryptoBalance() {
+        return startingCryptoBalance;
+    }
+
+    public BigDecimal getStartingFiatBalance() {
+        return startingFiatBalance;
     }
 }

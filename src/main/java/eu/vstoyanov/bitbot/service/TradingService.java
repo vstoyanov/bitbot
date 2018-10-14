@@ -1,6 +1,6 @@
 package eu.vstoyanov.bitbot.service;
 
-import eu.vstoyanov.bitbot.configuration.Configuration;
+import eu.vstoyanov.bitbot.configuration.BitbotConfiguration;
 import eu.vstoyanov.bitbot.exchange.Exchange;
 import eu.vstoyanov.bitbot.model.Order;
 import eu.vstoyanov.bitbot.model.OrderExecution;
@@ -8,6 +8,7 @@ import eu.vstoyanov.bitbot.strategy.TradingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -26,7 +27,7 @@ public class TradingService {
     private static final Logger logger = LoggerFactory.getLogger(TradingService.class);
 
     @Autowired
-    public TradingService(TradingStrategy strategy, Exchange exchange, Configuration configuration,
+    public TradingService(TradingStrategy strategy, Exchange exchange, BitbotConfiguration configuration,
                           AccountService accountService, Clock clock) {
 
         this.strategy = strategy;
@@ -40,10 +41,10 @@ public class TradingService {
 
         BigDecimal lastPrice = exchange.pollPrice(configuration.getFiatCurrency());
 
-        Order toExecute = strategy.tick(Instant.now(clock), lastPrice.doubleValue());
+        Order toExecute = strategy.tick(Instant.now(clock), lastPrice);
 
-        if (!toExecute.getAmount().equals(BigDecimal.ZERO)) {
-            logger.info("Placing an order: %s", toExecute);
+        if (toExecute.getAmount().compareTo(BigDecimal.ZERO) != 0) {
+            logger.info("Placing an order: {}", toExecute);
 
             OrderExecution orderExecution = exchange.placeOrder(toExecute, configuration.getFiatCurrency());
 
@@ -56,7 +57,7 @@ public class TradingService {
     private TradingStrategy strategy;
     private Exchange exchange;
 
-    private Configuration configuration;
+    private BitbotConfiguration configuration;
     private AccountService accountService;
 
     private Clock clock;

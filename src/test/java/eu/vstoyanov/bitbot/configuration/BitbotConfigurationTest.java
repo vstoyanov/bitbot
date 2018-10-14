@@ -11,10 +11,10 @@ import static junit.framework.TestCase.assertEquals;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes={Bitbot.class})
-public class ConfigurationTest {
+public class BitbotConfigurationTest {
 
     @Autowired
-    private Configuration configuration;
+    private BitbotConfiguration configuration;
 
     @Test
     public void testGetFiatCurrency() {
